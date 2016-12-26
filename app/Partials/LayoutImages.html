@@ -1,0 +1,374 @@
+﻿<style>
+    .ui-grid-draggable-row-target {
+        opacity: 0.5 !important;
+    }
+
+    .ui-grid-draggable-row {
+        height: 30px;
+    }
+
+    .ui-grid-draggable-row-over {
+        position: relative;
+    }
+
+        .ui-grid-draggable-row-over:before {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            border-bottom: 1px dotted #AAA;
+        }
+
+    .ui-grid-draggable-row-over--above:before {
+        top: 0;
+    }
+
+    .ui-grid-draggable-row-over--below:before {
+        bottom: 0;
+    }
+
+    .grid {
+        height: 235px;
+    }
+</style>
+<div class="container-fluid" style="border-radius: 4px; border: 2px solid #DCDCDC; margin-left: 10px; margin-right: 10px; margin-bottom: 5px;">
+    <div class="form-group" >
+        <div class="col-md-12">
+            <div class="row-fluid">
+                <div class="span12">
+                    <h3>{{layoutTypeText}}</h3>
+                </div>
+            </div>
+
+            <div class="col-xs-3">
+                <label for="ddlLayout">
+                    {{'STEMPLATE' | translate}}
+                </label>
+                <select id="ddlLayout" class="form-control" ng-model="seletedLayout" ng-change="ddlLayoutSelection();">
+                    <option ng-repeat="layout in layoutList" ng-selected="seletedLayout==layout.Id" value="{{layout.Id}}">{{layout.LayoutName}}</option>
+                </select>
+            </div>
+            <div class="col-xs-3">
+                <label for="ddlControlerPanelOptions">{{'SOPTION' | translate}}</label>
+                <select id="ddlControlerPanelOptions" class="form-control" ng-model="seletedArea" ng-click="checkTemplateSelected()" ng-change="ddlControlPanelSelection()">
+                    <option value="0" ng-selected="seletedArea==0">{{'SELECTOPTION' | translate}}</option>
+                    <option value="3" ng-selected="seletedArea==3">{{'BACKGROUND' | translate}}</option>
+                    <option value="1" ng-selected="seletedArea==1">{{'GRAPHIC1' | translate}}</option>
+                    <option value="2" ng-selected="seletedArea == 2">{{'GRAPHIC2' | translate}}</option>
+                    <option value="4" ng-selected="seletedArea == 4">{{'PGPROPERTIES' | translate}}</option>
+                </select>
+            </div>
+            <div class="col-xs-4" ng-show="(seletedArea>0 && seletedArea<4)">
+                <label for="ex3">{{layoutTypeText}}{{'TIMEINTERVALS' | translate}} </label>
+                <!--<input if="ex3" class="form-control" type="text" ng-model="layoutConfigs.TimeInterval"
+                       ng-model-options='{ debounce: 1000 }'
+                        ng-change="saveInterval();" />-->
+                <!--Change made by Vandana for VIS-53-->
+                <input if="ex3" class="form-control" type="text" ng-model="layoutConfigs.TimeInterval"
+                       placeholder="Enter Only Positive Numbers"
+                       ng-model-options='{ debounce: 1000 }'
+                       ng-change="saveInterval();" />
+                <!--Change ends here-->
+                <!--<input class="form-control" id="ex3" type="text">-->
+            </div>
+
+            <!--<div class="col-xs-2" >
+                <label for="ex4"></label>
+                <button type="button" class=" form-control btn btn-link" ng-click="back()">Preview Template </button>
+&nbsp;                <button ng-show="(seletedArea>0 && seletedArea<4)" id="ex4" type="button" class="form-control btn btn-primary" ng-click="open();">Add New Image</button>               
+            </div>-->
+            <div class="col-xs-2">
+                <table>
+                    <tr>
+                        <td><label for="ex4"></label></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="button" class=" form-control btn btn-link" ng-click="back()">{{'PREVIEWTEMPLATE' | translate}} </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button ng-show="(seletedArea>0 && seletedArea<4)" id="ex4" type="button" class="form-control btn btn-primary" ng-click="open();">{{'ADDNEWIMAGE' | translate}}</button> 
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div id="divBackGroundControlPanel"  ng-if="(seletedArea>0 && seletedArea<4)">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div ui-grid="gridOptions" class="grid" ui-grid-draggable-rows></div>
+                    </div>
+                </div>
+
+                <div class="row-fluid">
+                    <div class="span12">
+                        <br />
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="divTableDesignerControlPanel" ng-if="(seletedArea==4)">
+
+                <div class="row-fluid">
+                    <div class="span4">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <div id="divGridDataProperties" ui-grid="gridTableOptions" class="grid" ui-grid-draggable-rows></div>
+                            </div>
+                        </div>
+
+                        <div class="row-fluid">
+                            <br />
+                        </div>
+                    </div>
+
+                    <div class="span8" ng-show="showColProperties">
+                        <div class="row-fluid">
+                            <div class="span2">
+                                {{'CSELECTION' | translate}}:
+                            </div>
+                            <div class="span3">
+                                {{colName}}
+                            </div>
+
+                            <div class="span3">
+                                <div class="row-fluid">
+                                    <div class="span5">
+                                        {{'TEXTCOLOR' | translate}} 
+                                    </div>
+                                    <div class="span7">
+                                        <input colorpicker ng-model="colPropertiesSec.colTextColor" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="span4">
+                                <div class="row-fluid">
+                                    <div class="span4">
+                                        {{'FONTNAME' | translate}} 
+                                    </div>
+                                    <div class="span8">
+                                        <select id="ddlLayout1" style="width:91%" ng-model="colPropertiesSec.colFontName" class="form-control">
+                                            <option ng-repeat="fontFamily in fontFamilies" ng-selected="colPropertiesSec.colFontName==fontFamily.fontValue" value="{{fontFamily.fontValue}}">{{fontFamily.fontName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="span3">
+                                {{'ADJUSTAPPFOR' | translate}} :
+                            </div>
+                            <div class="span3">
+                                <label>
+                                    <input type="radio" name="adjustement"  ng-value="true" ng-model="$parent.colAdjTypeHeader" ng-change="colAdjustmentSelection(true)">
+                                    {{'HEADER' | translate}}
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="adjustement" ng-value="false" ng-model="$parent.colAdjTypeHeader" ng-change="colAdjustmentSelection(false)">
+                                   {{'COLUMN' | translate}}
+                                </label>
+                            </div>
+
+                            <div class="span6">
+                                <div class="row-fluid">
+                                    <div class="span3">
+                                        {{'FONTSIZE' | translate}}
+                                    </div>
+                                    <div class="span3">
+                                        <div class="input-group" >
+                                            <input type="text" class="form-control" ng-model="colPropertiesSec.colTextSize" aria-describedby="addon-colTextSize" required />
+                                            <span class="input-group-addon" id="addon-colTextSize">px</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="span2">
+                                        <label>
+                                            <input type="checkbox" value="true" ng-model="colPropertiesSec.colTextBold" />
+                                            {{'BOLD' | translate}}
+                                        </label>
+                                    </div>
+                                    <div class="span2">
+                                        <label>
+                                            <input type="checkbox" value="true" ng-model="colPropertiesSec.colTextItalic" />
+                                          {{'ITALIC' | translate}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="span3">
+                                {{(colAdjTypeHeader)?"Header":"Column"}} {{'BACKGROUNDSTYLE' | translate}}
+                            </div>
+                            <div class="span9">
+                                <label>
+                                    <input type="radio" name="background" ng-value="true" ng-model="colPropertiesSec.colBackGroundTransparent">
+                                    {{'TRANSPARENT' | translate}}
+                                </label>
+
+                                <label>
+                                    <input type="radio" name="background" ng-value="false" ng-model="colPropertiesSec.colBackGroundTransparent">
+                                    {{'SOLID' | translate}}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="row-fluid animate-show" ng-show="(!colPropertiesSec.colBackGroundTransparent)">
+                            <div class="span2">
+                                {{'BACKGROUNDCOLOR' | translate}}
+                            </div>
+                            <div class="span4">
+                                <input colorpicker ng-model="colPropertiesSec.colBackGroundColor" />
+                            </div>
+
+                            <div class="span2">
+                                {{'TEXTALIGMENT' | translate}}
+                            </div>
+                            <div class="span4">
+                                <select style="width:91%" ng-model="colPropertiesSec.colTextAlignment" class="form-control">
+                                    <option ng-selected="colPropertiesSec.colTextAlignment=='Left'" value="Left">{{'LEFT' | translate}}</option>
+                                    <option ng-selected="colPropertiesSec.colTextAlignment=='Center'" value="Center">{{'CENTER' | translate}}</option>
+                                    <option ng-selected="colPropertiesSec.colTextAlignment=='Right'" value="Right">{{'RIGHT' | translate}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row-fluid">
+
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="span2">
+                                {{'CAPTION' | translate}}
+                            </div>
+                            <div class="span4">
+                                <input type="text" class="form-control" ng-model="colPropertiesSec.columnHeaderCaption" />
+                            </div>
+
+                            <div class="span2">
+                                {{'CSIZE' | translate}}
+                            </div>
+                            <div class="span2">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" ng-model="colPropertiesSec.ColumnWidth" aria-describedby="addon-ColumnWidth" />
+                                    <span class="input-group-addon" id="addon-ColumnWidth">%</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="span6">
+                                <div ng-show="(!colPropertiesSec2)?colPropertiesSec2:(!colPropertiesSec.colBackGroundTransparent)" class="animate-show">
+                                    <div class="row-fluid">
+                                        <div class="span12">
+                                            <label>
+                                                <input type="checkbox" value="true" ng-model="colPropertiesSec.altRowColor" />
+                                                {{'UAROWCOLOR' | translate}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="span3">
+                                <button type="button" class="btn btn-primary" style="width:95%;" ng-click="submitted=true" && "saveColumnProperties();">{{'SAVE' | translate}}</button>
+                            </div>
+                            <div class="span3">
+                                <button type="button" class="btn btn-inverse" style="width:95%;" ng-click="cancelColumnProperties();">{{'CANCEL' | translate}}</button>
+                            </div>
+                        </div>
+
+                        <div ng-show="colPropertiesSec2" class="animate-show">
+                            <div class="row-fluid animate-show" ng-show="((!colPropertiesSec.colBackGroundTransparent)?(colPropertiesSec.altRowColor):(!colPropertiesSec.colBackGroundTransparent))">
+                                <div class="span3">
+                                    <div class="row-fluid">
+                                        <div class="span7">
+                                            {{'OLDROWCOLOR' | translate}}
+                                        </div>
+                                        <div class="span5">
+                                            <input colorpicke colorpicker ng-model="colPropertiesSec.oddRowColor" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="span4">
+                                    <div class="row-fluid">
+                                        <div class="span6">
+                                            {{'EVENROWCOLOR' | translate}}
+                                        </div>
+                                        <div class="span4">
+                                            <input colorpicker ng-model="colPropertiesSec.evenRowColor" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{'CCELLBORDER' | translate}}
+                            <div class="row-fluid">
+                                <div class="span5">
+                                    <div class="row-fluid">
+                                        <div class="span4">
+                                            {{'SELECTBORDER' | translate}}
+                                        </div>
+                                        <div class="span8">
+                                            <input type="checkbox" value="true" ng-model="colPropertiesSec.colCellBorlderLeft" />
+                                            {{'LEFT' | translate}}
+
+                                            <input type="checkbox" value="true" ng-model="colPropertiesSec.colCellBorlderRight" />
+                                            
+                                            {{'RIGHT' | translate}} 
+                                            <input type="checkbox" value="true" ng-model="colPropertiesSec.colCellBorlderTop" />
+                                            
+                                            {{'TOP' | translate}}
+                                            
+                                            <input type="checkbox" value="true" ng-model="colPropertiesSec.colCellBorlderBottom" />
+                                           {{'BOTTOM' | translate}}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="span7">
+                                    <div class="row-fluid">
+                                        <div class="span1">
+                                            {{'SIZE' | translate}}
+                                        </div>
+                                        <div class="span3">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" ng-model="colPropertiesSec.colCellBorderSize" aria-describedby="addon-colCellBorderSize" />
+                                                <span class="input-group-addon" id="addon-colCellBorderSize">px</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="span3">
+                                          {{'BORDERCOLOR' | translate}}
+                                        </div>
+                                        <div class="span3">
+                                            <input colorpicker ng-model="colPropertiesSec.colCellBorderColor" />
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            &nbsp;
+        </div>
+    </div>
+</div>
